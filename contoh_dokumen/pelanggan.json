@@ -1,0 +1,12 @@
+{
+  "_id": 8,
+  "nama": "Kurnia Anggraeni",
+  "poin": 231,
+  "terdaftar_pada": {
+    "$date": "2026-07-18T03:09:00Z"
+  },
+  "kontak": {
+    "no_hp": "081382717322",
+    "email": "kurnia.anggraeni@mail.com"
+  }
+}

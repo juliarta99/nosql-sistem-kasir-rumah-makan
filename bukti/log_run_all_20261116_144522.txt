@@ -1,0 +1,584 @@
+
+################ 01_schema.js ################
+=== 01_schema.js — database: db_sistem_kasir ===
+[TETAP]    validator koleksi pengguna sudah sesuai (data tetap)
+[TETAP]    validator koleksi pelanggan sudah sesuai (data tetap)
+[TETAP]    validator koleksi menu sudah sesuai (data tetap)
+[TETAP]    validator koleksi transaksi sudah sesuai (data tetap)
+  - pengguna: validationLevel=strict, validationAction=error
+  - pelanggan: validationLevel=strict, validationAction=error
+  - menu: validationLevel=strict, validationAction=error
+  - transaksi: validationLevel=strict, validationAction=error
+
+=== Uji penolakan validator (harus DITOLAK semua) ===
+[DITOLAK] V1 transaksi: tipe_pesanan di luar enum ('Delivery')  (code 121 DocumentValidationFailure)
+          alasan: tipe_pesanan -> value was not found in enum [enum]
+[DITOLAK] V2 transaksi: total_bayar (15000) != jumlah subtotal item (10000)  (code 121 DocumentValidationFailure)
+          alasan: (aturan $expr) -> expression did not match [$expr]
+[DITOLAK] V3 transaksi: jumlah_dibayar (5000) < total_bayar (10000)  (code 121 DocumentValidationFailure)
+          alasan: (aturan $expr) -> expression did not match [$expr]; (aturan $expr) -> expression did not match [$expr]
+[DITOLAK] V4 menu: harga negatif & kategori tidak dikenal  (code 121 DocumentValidationFailure)
+          alasan: kategori.id -> comparison failed [maximum]; kategori.nama -> value was not found in enum [enum]; harga -> comparison failed [minimum]
+[DITOLAK] V5 pengguna: role Kasir tanpa profil & password tidak di-hash  (code 121 DocumentValidationFailure)
+          alasan: password_hash -> regular expression did not match [pattern]; role -> value was not found in enum [enum]
+Hasil: 5/5 dokumen tidak valid berhasil ditolak.
+
+################ 02_seed.js ################
+=== 02_seed.js — database: db_sistem_kasir (benih 4042026) ===
+[pengguna] dihapus 0 -> disisipkan 40 -> countDocuments = 40
+[pelanggan] dihapus 0 -> disisipkan 300 -> countDocuments = 300
+[menu] dihapus 0 -> disisipkan 45 -> countDocuments = 45
+[transaksi] dihapus 0 -> disisipkan 5000 -> countDocuments = 5000
+
+Ringkasan jumlah dokumen:
+  pengguna  : 40
+  pelanggan : 300
+  menu      : 45
+  transaksi : 5000
+Contoh nota asli MySQL yang sudah dipindahkan:
+{
+  _id: 'TR1909202600001',
+  tanggal: ISODate('2026-09-19T02:15:00.000Z'),
+  tipe_pesanan: 'Makan di Tempat',
+  status: 'Sudah Diterima',
+  items: [
+    {
+      kode_menu: 'ETHMNS',
+      nama_menu: 'Es Teh Manis',
+      kategori: 'Minuman',
+      harga: 5000,
+      kuantitas: 1,
+      subtotal: 5000
+    },
+    {
+      kode_menu: 'NSAMBKR',
+      nama_menu: 'Nasi Ayam Bakar',
+      kategori: 'Makanan Utama',
+      harga: 25000,
+      kuantitas: 1,
+      subtotal: 25000
+    }
+  ],
+  total_bayar: 30000,
+  pembayaran: {
+    metode: 'Tunai',
+    jenis: 'Tunai',
+    jumlah_dibayar: 30500,
+    kembalian: 500
+  },
+  kasir: {
+    id_pengguna: 6,
+    nama: 'Putu Pratama'
+  },
+  koki: {
+    id_pengguna: 1,
+    nama: 'Chef Sanji'
+  },
+  pelanggan: {
+    id_pelanggan: 1,
+    nama: 'Andi'
+  },
+  riwayat_status: [
+    {
+      status: 'Sedang Diproses',
+      waktu: ISODate('2026-09-19T02:15:00.000Z')
+    },
+    {
+      status: 'Siap Diambil',
+      waktu: ISODate('2026-09-19T02:37:00.000Z')
+    },
+    {
+      status: 'Sudah Diterima',
+      waktu: ISODate('2026-09-19T02:40:00.000Z')
+    }
+  ]
+}
+
+################ 03_crud.js ################
+=== 03_crud.js — database: db_sistem_kasir ===
+
+--- C1 | insertOne — mendaftarkan pelanggan baru (atribut kontak bervariasi) ---
+{
+  acknowledged: true,
+  insertedId: 9001
+}
+
+--- C2 | insertMany — kasir mencatat 2 nota sekaligus (item & pembayaran di-embed) ---
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'TR1611202699001',
+    '1': 'TR1611202699002'
+  }
+}
+
+--- C3 | upsert — menambah/menyunting menu musiman 'Es Campur' (dibuat bila belum ada) ---
+{
+  acknowledged: true,
+  insertedId: 'ESCMPR',
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 1
+}
+
+--- R1 | Perbandingan ($gte, $lt) — nota bernilai >= Rp150.000 selama Oktober 2026 ---
+jumlah nota: 70
+{
+  _id: 'TR0210202600001',
+  total_bayar: 187000,
+  pelanggan: {
+    nama: 'Jaya Pratiwi'
+  }
+}
+{
+  _id: 'TR0210202600004',
+  total_bayar: 157000,
+  pelanggan: {
+    nama: 'Jaya Wiranata'
+  }
+}
+{
+  _id: 'TR0210202600039',
+  total_bayar: 159000,
+  pelanggan: {
+    nama: 'Vina Dharma'
+  }
+}
+
+--- R2 | Logika ($and + $or) — antrean dapur: belum diterima DAN (bawa pulang ATAU belum ada koki) ---
+{
+  _id: 'TR2009202600002',
+  tanggal: ISODate('2026-09-20T05:10:00.000Z'),
+  tipe_pesanan: 'Bawa Pulang',
+  status: 'Sedang Diproses',
+  koki: {
+    nama: 'Chef Vincent'
+  }
+}
+{
+  _id: 'TR2109202600003',
+  tanggal: ISODate('2026-09-21T08:30:00.000Z'),
+  tipe_pesanan: 'Bawa Pulang',
+  status: 'Sedang Diproses'
+}
+{
+  _id: 'TR1511202600045',
+  tanggal: ISODate('2026-11-15T11:03:00.000Z'),
+  tipe_pesanan: 'Bawa Pulang',
+  status: 'Sedang Diproses',
+  koki: {
+    nama: 'Chef Dedi'
+  }
+}
+{
+  _id: 'TR1511202600055',
+  tanggal: ISODate('2026-11-15T13:11:00.000Z'),
+  tipe_pesanan: 'Bawa Pulang',
+  status: 'Siap Diambil',
+  koki: {
+    nama: 'Chef Dodi'
+  }
+}
+{
+  _id: 'TR1611202699001',
+  tanggal: ISODate('2026-11-16T04:05:00.000Z'),
+  tipe_pesanan: 'Makan di Tempat',
+  status: 'Sedang Diproses'
+}
+{
+  _id: 'TR1611202699002',
+  tanggal: ISODate('2026-11-16T04:20:00.000Z'),
+  tipe_pesanan: 'Bawa Pulang',
+  status: 'Sedang Diproses'
+}
+
+--- R3 | Array ($elemMatch) — nota yang memesan Nasi Ayam Bakar minimal 3 porsi dalam satu baris item ---
+jumlah nota: 42
+{
+  _id: 'TR0408202600025',
+  tanggal: ISODate('2026-08-04T08:57:00.000Z'),
+  items: [
+    {
+      kode_menu: 'NSAMBKR',
+      nama_menu: 'Nasi Ayam Bakar',
+      kategori: 'Makanan Utama',
+      harga: 25000,
+      kuantitas: 3,
+      subtotal: 75000
+    }
+  ]
+}
+{
+  _id: 'TR0508202600047',
+  tanggal: ISODate('2026-08-05T12:24:00.000Z'),
+  items: [
+    {
+      kode_menu: 'NSAMBKR',
+      nama_menu: 'Nasi Ayam Bakar',
+      kategori: 'Makanan Utama',
+      harga: 25000,
+      kuantitas: 3,
+      subtotal: 75000
+    }
+  ]
+}
+
+--- R4 | $regex — cari menu yang namanya mengandung 'goreng' (tidak peka huruf besar/kecil) ---
+{
+  _id: 'PSGGRG',
+  nama: 'Pisang Goreng',
+  kategori: {
+    nama: 'Camilan'
+  },
+  harga: 12000
+}
+{
+  _id: 'KTGGRG',
+  nama: 'Kentang Goreng',
+  kategori: {
+    nama: 'Camilan'
+  },
+  harga: 18000
+}
+{
+  _id: 'AYMGRG',
+  nama: 'Ayam Goreng',
+  kategori: {
+    nama: 'Lauk Tambahan'
+  },
+  harga: 18000
+}
+{
+  _id: 'MIGRG',
+  nama: 'Mie Goreng',
+  kategori: {
+    nama: 'Makanan Utama'
+  },
+  harga: 20000
+}
+{
+  _id: 'NSGRG',
+  nama: 'Nasi Goreng',
+  kategori: {
+    nama: 'Makanan Utama'
+  },
+  harga: 22000
+}
+{
+  _id: 'GRMGRG',
+  nama: 'Gurame Goreng',
+  kategori: {
+    nama: 'Makanan Utama'
+  },
+  harga: 30000
+}
+
+--- R5 | Notasi titik — transaksi tunai yang dilayani kasir Siti Aminah (field bersarang) ---
+jumlah nota: 102
+{
+  _id: 'TR0108202600016',
+  total_bayar: 86000,
+  pembayaran: {
+    metode: 'Tunai',
+    jenis: 'Tunai',
+    jumlah_dibayar: 86000,
+    kembalian: 0
+  },
+  kasir: {
+    nama: 'Siti Aminah'
+  }
+}
+
+--- R6 | Proyeksi + sort + limit — 5 nota terbesar sepanjang data (tanpa _id, hanya field penting) ---
+{
+  tanggal: ISODate('2026-09-05T05:20:00.000Z'),
+  total_bayar: 534000,
+  pembayaran: {
+    metode: 'Tunai'
+  },
+  pelanggan: {
+    nama: 'Dewi Wijaya'
+  },
+  no_nota: 'TR0509202600028'
+}
+{
+  tanggal: ISODate('2026-10-18T06:10:00.000Z'),
+  total_bayar: 532000,
+  pembayaran: {
+    metode: 'Tunai'
+  },
+  pelanggan: {
+    nama: 'Hendra Yudistira'
+  },
+  no_nota: 'TR1810202600026'
+}
+{
+  tanggal: ISODate('2026-10-05T09:21:00.000Z'),
+  total_bayar: 528000,
+  pembayaran: {
+    metode: 'QRIS'
+  },
+  pelanggan: {
+    nama: 'Nanda Febrianti'
+  },
+  no_nota: 'TR0510202600022'
+}
+{
+  tanggal: ISODate('2026-10-17T10:40:00.000Z'),
+  total_bayar: 508000,
+  pembayaran: {
+    metode: 'QRIS'
+  },
+  pelanggan: {
+    nama: 'Pande Saputra'
+  },
+  no_nota: 'TR1710202600038'
+}
+{
+  tanggal: ISODate('2026-08-17T10:49:00.000Z'),
+  total_bayar: 507000,
+  pembayaran: {
+    metode: 'QRIS'
+  },
+  pelanggan: {
+    nama: 'Vina Wijaya'
+  },
+  no_nota: 'TR1708202600021'
+}
+
+--- U1 | $set — menu Es Campur habis hari ini, harga juga disesuaikan ---
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+--- U2 | $inc — tambah poin loyalitas pelanggan uji (1 poin per Rp10.000 nota TR1611202699001) ---
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+{
+  _id: 9001,
+  nama: 'Pelanggan Uji Kelompok4',
+  poin: 6
+}
+
+--- U3 | Operator array ($push) — koki Sanji menyelesaikan pesanan: status & riwayat_status diperbarui ---
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+{
+  _id: 'TR1611202699001',
+  status: 'Siap Diambil',
+  koki: {
+    id_pengguna: 1,
+    nama: 'Chef Sanji'
+  },
+  riwayat_status: [
+    {
+      status: 'Sedang Diproses',
+      waktu: ISODate('2026-11-16T04:05:00.000Z')
+    },
+    {
+      status: 'Siap Diambil',
+      waktu: ISODate('2026-11-16T04:25:00.000Z')
+    }
+  ]
+}
+
+--- U4 | updateMany ($addToSet) — beri tag 'segar' pada semua menu kategori Minuman yang dingin ---
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 8,
+  modifiedCount: 6,
+  upsertedCount: 0
+}
+
+--- D1 | deleteMany — membatalkan (void) 2 nota uji yang salah input ---
+dokumen yang cocok sebelum dihapus: 2
+{
+  acknowledged: true,
+  deletedCount: 2
+}
+deletedCount sesuai perkiraan: true
+
+--- D2 | deleteOne — menghapus pelanggan uji yang sudah tidak punya transaksi ---
+{
+  acknowledged: true,
+  deletedCount: 1
+}
+
+Selesai: 15 operasi CRUD dijalankan. Jumlah akhir -> transaksi=5000, pelanggan=300, menu=46
+
+################ 04_aggregation.js ################
+=== 04_aggregation.js — database: db_sistem_kasir ===
+
+=== P1 | Menu terlaris per kategori, Oktober 2026 ===
+tahap: $match -> $unwind -> $group -> $sort -> $group -> $project -> $sort
+{"menu_terlaris":"Nasi Goreng","porsi":190,"omzet_menu":4180000,"omzet_kategori":34742000,"kategori":"Makanan Utama"}
+{"menu_terlaris":"Paket Hemat","porsi":128,"omzet_menu":3200000,"omzet_kategori":15140000,"kategori":"Paket Spesial"}
+{"menu_terlaris":"Es Teh Manis","porsi":287,"omzet_menu":1435000,"omzet_kategori":12349000,"kategori":"Minuman"}
+{"menu_terlaris":"Bakwan Jagung","porsi":120,"omzet_menu":1800000,"omzet_kategori":7050000,"kategori":"Camilan"}
+{"menu_terlaris":"Tumis Kangkung","porsi":102,"omzet_menu":1530000,"omzet_kategori":6697000,"kategori":"Sayuran"}
+{"menu_terlaris":"Klepon","porsi":87,"omzet_menu":870000,"omzet_kategori":4053000,"kategori":"Dessert"}
+{"menu_terlaris":"Sambal Matah","porsi":135,"omzet_menu":675000,"omzet_kategori":3573000,"kategori":"Lauk Tambahan"}
+(7 baris)
+
+=== P2 | Omzet bulanan per jenis pembayaran ===
+tahap: $match -> $group -> $group -> $addFields -> $sort -> $project
+{"omzet_total":83585000,"nota_total":1459,"rincian":[{"jenis":"Transfer","nota":331,"omzet":19813000},{"jenis":"QRIS","nota":531,"omzet":29746000},{"jenis":"Tunai","nota":597,"omzet":34026000}],"persen_tunai":40.7,"bulan":"2026-08"}
+{"omzet_total":78958000,"nota_total":1420,"rincian":[{"jenis":"Tunai","nota":573,"omzet":33112000},{"jenis":"Transfer","nota":362,"omzet":19508000},{"jenis":"QRIS","nota":485,"omzet":26338000}],"persen_tunai":41.9,"bulan":"2026-09"}
+{"omzet_total":83604000,"nota_total":1432,"rincian":[{"jenis":"Tunai","nota":576,"omzet":34346000},{"jenis":"QRIS","nota":482,"omzet":27719000},{"jenis":"Transfer","nota":374,"omzet":21539000}],"persen_tunai":41.1,"bulan":"2026-10"}
+{"omzet_total":39915000,"nota_total":681,"rincian":[{"jenis":"Tunai","nota":277,"omzet":16857000},{"jenis":"Transfer","nota":156,"omzet":7996000},{"jenis":"QRIS","nota":248,"omzet":15062000}],"persen_tunai":42.2,"bulan":"2026-11"}
+(4 baris)
+
+=== P3 | Kinerja kasir (gabung data akun pengguna) ===
+tahap: $match -> $group -> $lookup -> $unwind -> $project -> $sort
+{"jumlah_nota":298,"omzet":18384000,"id_pengguna":13,"username":"sari","nama":"Komang Sari","shift":"Pagi","aktif":true,"rata_rata_nota":61691}
+{"jumlah_nota":279,"omzet":17651000,"id_pengguna":12,"username":"ariawan","nama":"Made Ariawan","shift":"Pagi","aktif":true,"rata_rata_nota":63265}
+{"jumlah_nota":305,"omzet":17471000,"id_pengguna":6,"username":"putu","nama":"Putu Pratama","shift":"Pagi","aktif":true,"rata_rata_nota":57282}
+{"jumlah_nota":310,"omzet":17176000,"id_pengguna":9,"username":"ayu","nama":"Ayu Lestari","shift":"Sore","aktif":true,"rata_rata_nota":55406}
+{"jumlah_nota":283,"omzet":17012000,"id_pengguna":8,"username":"wayan","nama":"Wayan Santoso","shift":"Sore","aktif":true,"rata_rata_nota":60113}
+{"jumlah_nota":284,"omzet":16853000,"id_pengguna":17,"username":"prasetya","nama":"Gede Prasetya","shift":"Sore","aktif":true,"rata_rata_nota":59342}
+{"jumlah_nota":269,"omzet":16589000,"id_pengguna":16,"username":"ananta","nama":"Kadek Ananta","shift":"Pagi","aktif":true,"rata_rata_nota":61669}
+{"jumlah_nota":273,"omzet":16273000,"id_pengguna":20,"username":"cahyani","nama":"Ni Putu Cahyani","shift":"Sore","aktif":true,"rata_rata_nota":59608}
+{"jumlah_nota":272,"omzet":15722000,"id_pengguna":22,"username":"sri","nama":"Desak Made Sri","shift":"Pagi","aktif":true,"rata_rata_nota":57801}
+{"jumlah_nota":279,"omzet":15398000,"id_pengguna":7,"username":"siti","nama":"Siti Aminah","shift":"Pagi","aktif":true,"rata_rata_nota":55190}
+{"jumlah_nota":268,"omzet":15378000,"id_pengguna":21,"username":"rai","nama":"Agung Rai","shift":"Pagi","aktif":true,"rata_rata_nota":57381}
+{"jumlah_nota":268,"omzet":15228000,"id_pengguna":19,"username":"putra","nama":"Dewa Ngurah Putra","shift":"Pagi","aktif":true,"rata_rata_nota":56821}
+{"jumlah_nota":264,"omzet":14569000,"id_pengguna":23,"username":"laksmi","nama":"Ida Ayu Laksmi","shift":"Sore","aktif":true,"rata_rata_nota":55186}
+{"jumlah_nota":282,"omzet":14562000,"id_pengguna":10,"username":"rizky","nama":"Rizky Maulana","shift":"Sore","aktif":true,"rata_rata_nota":51638}
+{"jumlah_nota":266,"omzet":14144000,"id_pengguna":15,"username":"dewi","nama":"Nyoman Dewi","shift":"Sore","aktif":true,"rata_rata_nota":53173}
+{"jumlah_nota":254,"omzet":13964000,"id_pengguna":18,"username":"wulandari","nama":"Luh Ayu Wulandari","shift":"Pagi","aktif":true,"rata_rata_nota":54976}
+{"jumlah_nota":257,"omzet":13545000,"id_pengguna":14,"username":"wirawan","nama":"Ketut Wirawan","shift":"Pagi","aktif":true,"rata_rata_nota":52704}
+{"jumlah_nota":147,"omzet":8829000,"id_pengguna":25,"username":"kartika","nama":"Dewi Kartika","shift":"Pagi","aktif":false,"rata_rata_nota":60061}
+{"jumlah_nota":134,"omzet":7314000,"id_pengguna":24,"username":"nugroho","nama":"Fajar Nugroho","shift":"Sore","aktif":false,"rata_rata_nota":54582}
+(19 baris)
+
+=== P4 | 10 pelanggan dengan belanja terbesar ===
+tahap: $match -> $group -> $sort -> $limit -> $lookup -> $project
+{"kunjungan":60,"total_belanja":4852000,"id_pelanggan":30,"nama":"Gilang Febrianti","poin":459,"bisa_dihubungi":true,"terakhir":"2026-11-15"}
+{"kunjungan":73,"total_belanja":4768000,"id_pelanggan":14,"nama":"Nanda Paramitha","poin":446,"bisa_dihubungi":true,"terakhir":"2026-11-15"}
+{"kunjungan":80,"total_belanja":4494000,"id_pelanggan":25,"nama":"Wahyu Kusuma","poin":415,"bisa_dihubungi":true,"terakhir":"2026-11-15"}
+{"kunjungan":75,"total_belanja":4483000,"id_pelanggan":5,"nama":"Siska","poin":418,"bisa_dihubungi":false,"terakhir":"2026-11-13"}
+{"kunjungan":69,"total_belanja":4391000,"id_pelanggan":4,"nama":"Joko","poin":413,"bisa_dihubungi":false,"terakhir":"2026-11-11"}
+{"kunjungan":76,"total_belanja":4277000,"id_pelanggan":23,"nama":"Agus Setiawan","poin":401,"bisa_dihubungi":true,"terakhir":"2026-11-15"}
+{"kunjungan":60,"total_belanja":4242000,"id_pelanggan":6,"nama":"Dimas","poin":405,"bisa_dihubungi":false,"terakhir":"2026-11-12"}
+{"kunjungan":72,"total_belanja":4150000,"id_pelanggan":12,"nama":"Bagus Hidayat","poin":387,"bisa_dihubungi":true,"terakhir":"2026-11-15"}
+{"kunjungan":79,"total_belanja":4128000,"id_pelanggan":13,"nama":"Eka Utami","poin":379,"bisa_dihubungi":false,"terakhir":"2026-11-15"}
+{"kunjungan":66,"total_belanja":4121000,"id_pelanggan":22,"nama":"Oka Hidayat","poin":385,"bisa_dihubungi":true,"terakhir":"2026-11-13"}
+(10 baris)
+
+=== P5 | Jam sibuk & tipe pesanan ===
+tahap: $match -> $project -> $group -> $sort -> $project
+{"nota":115,"porsi":357,"makan_di_tempat":72,"bawa_pulang":43,"jam":"8:00"}
+{"nota":161,"porsi":514,"makan_di_tempat":110,"bawa_pulang":51,"jam":"9:00"}
+{"nota":261,"porsi":814,"makan_di_tempat":182,"bawa_pulang":79,"jam":"10:00"}
+{"nota":440,"porsi":1373,"makan_di_tempat":281,"bawa_pulang":159,"jam":"11:00"}
+{"nota":568,"porsi":1711,"makan_di_tempat":377,"bawa_pulang":191,"jam":"12:00"}
+{"nota":570,"porsi":1742,"makan_di_tempat":382,"bawa_pulang":188,"jam":"13:00"}
+{"nota":283,"porsi":877,"makan_di_tempat":180,"bawa_pulang":103,"jam":"14:00"}
+{"nota":205,"porsi":624,"makan_di_tempat":128,"bawa_pulang":77,"jam":"15:00"}
+{"nota":231,"porsi":681,"makan_di_tempat":160,"bawa_pulang":71,"jam":"16:00"}
+{"nota":383,"porsi":1195,"makan_di_tempat":264,"bawa_pulang":119,"jam":"17:00"}
+{"nota":533,"porsi":1656,"makan_di_tempat":336,"bawa_pulang":197,"jam":"18:00"}
+{"nota":617,"porsi":1884,"makan_di_tempat":406,"bawa_pulang":211,"jam":"19:00"}
+{"nota":395,"porsi":1246,"makan_di_tempat":266,"bawa_pulang":129,"jam":"20:00"}
+{"nota":230,"porsi":708,"makan_di_tempat":148,"bawa_pulang":82,"jam":"21:00"}
+(14 baris)
+
+=== P6 | 8 menu tersedia yang paling kurang laku 30 hari terakhir ===
+tahap: $match -> $lookup -> $unwind -> $project -> $sort -> $limit
+{"nama":"Paket Betutu","kode_menu":"PKTBTT","kategori":"Paket Spesial","porsi_30_hari":39,"omzet_30_hari":2535000}
+{"nama":"Paket Keluarga","kode_menu":"PKTKLG","kategori":"Paket Spesial","porsi_30_hari":41,"omzet_30_hari":6150000}
+{"nama":"Wedang Jahe","kode_menu":"WDNGJH","kategori":"Minuman","porsi_30_hari":43,"omzet_30_hari":430000}
+{"nama":"Bubur Ketan Hitam","kode_menu":"BBKTHM","kategori":"Dessert","porsi_30_hari":45,"omzet_30_hari":540000}
+{"nama":"Sayur Asem","kode_menu":"SYRASM","kategori":"Sayuran","porsi_30_hari":46,"omzet_30_hari":552000}
+{"nama":"Es Daluman","kode_menu":"ESDLMN","kategori":"Dessert","porsi_30_hari":48,"omzet_30_hari":576000}
+{"nama":"Telur Balado","kode_menu":"TLRBLD","kategori":"Lauk Tambahan","porsi_30_hari":52,"omzet_30_hari":364000}
+{"nama":"Puding Cokelat","kode_menu":"PDDCKL","kategori":"Dessert","porsi_30_hari":52,"omzet_30_hari":780000}
+(8 baris)
+
+################ 05_indeks_explain.js ################
+=== 05_indeks_explain.js — database: db_sistem_kasir ===
+jumlah dokumen transaksi: 5000
+
+[buat]  transaksi.idx_esr_kasir_tanggal_total {"kasir.id_pengguna":1,"tanggal":-1,"total_bayar":1}
+[buat]  pengguna.uq_pengguna_username {"username":1} UNIQUE
+[buat]  transaksi.idx_mk_item_tanggal {"items.kode_menu":1,"tanggal":1}
+[buat]  transaksi.idx_pelanggan_tanggal {"pelanggan.id_pelanggan":1,"tanggal":-1}
+
+=== Perbandingan explain (executionStats, waktu = nilai tengah dari 3 kali) ===
+
+Q1 — Nota >= Rp100.000 milik kasir Siti (id 7), terbaru dulu  [E: kasir, S: tanggal, R: total]
+  SEBELUM : tahap=SORT <- COLLSCAN | nReturned=39 | keysExamined=0 | docsExamined=5000 | waktu=[4,4,5] median=4 ms
+  SESUDAH : tahap=FETCH <- IXSCAN(idx_esr_kasir_tanggal_total) | nReturned=39 | keysExamined=280 | docsExamined=39 | waktu=[1,0,0] median=0 ms
+  => dokumen yang diperiksa turun 5000 -> 39 (128.2x lebih sedikit); rasio docsExamined/nReturned sesudah = 1.00
+
+Q2 — Nota berisi Gurame Goreng (GRMGRG) selama Oktober 2026  [multikey items.kode_menu]
+  SEBELUM : tahap=COLLSCAN | nReturned=95 | keysExamined=0 | docsExamined=5000 | waktu=[6,8,6] median=6 ms
+  SESUDAH : tahap=FETCH <- IXSCAN(idx_mk_item_tanggal) | nReturned=95 | keysExamined=95 | docsExamined=95 | waktu=[1,0,0] median=0 ms
+  => dokumen yang diperiksa turun 5000 -> 95 (52.6x lebih sedikit); rasio docsExamined/nReturned sesudah = 1.00
+
+Q3 — 10 transaksi terakhir pelanggan Rina (id 3)
+  SEBELUM : tahap=SORT <- COLLSCAN | nReturned=10 | keysExamined=0 | docsExamined=5000 | waktu=[12,5,7] median=7 ms
+  SESUDAH : tahap=LIMIT <- FETCH <- IXSCAN(idx_pelanggan_tanggal) | nReturned=10 | keysExamined=10 | docsExamined=10 | waktu=[1,0,0] median=0 ms
+  => dokumen yang diperiksa turun 5000 -> 10 (500.0x lebih sedikit); rasio docsExamined/nReturned sesudah = 1.00
+
+JSON ringkasan:
+{"sebelum":{"Q1":{"tahap":"SORT <- COLLSCAN","nReturned":39,"totalKeysExamined":0,"totalDocsExamined":5000,"waktu3x":[4,4,5],"median_ms":4},"Q2":{"tahap":"COLLSCAN","nReturned":95,"totalKeysExamined":0,"totalDocsExamined":5000,"waktu3x":[6,8,6],"median_ms":6},"Q3":{"tahap":"SORT <- COLLSCAN","nReturned":10,"totalKeysExamined":0,"totalDocsExamined":5000,"waktu3x":[12,5,7],"median_ms":7}},"sesudah":{"Q1":{"tahap":"FETCH <- IXSCAN(idx_esr_kasir_tanggal_total)","nReturned":39,"totalKeysExamined":280,"totalDocsExamined":39,"waktu3x":[1,0,0],"median_ms":0},"Q2":{"tahap":"FETCH <- IXSCAN(idx_mk_item_tanggal)","nReturned":95,"totalKeysExamined":95,"totalDocsExamined":95,"waktu3x":[1,0,0],"median_ms":0},"Q3":{"tahap":"LIMIT <- FETCH <- IXSCAN(idx_pelanggan_tanggal)","nReturned":10,"totalKeysExamined":10,"totalDocsExamined":10,"waktu3x":[1,0,0],"median_ms":0}}}
+
+Daftar indeks akhir:
+  transaksi._id_ {"_id":1}
+  transaksi.idx_esr_kasir_tanggal_total {"kasir.id_pengguna":1,"tanggal":-1,"total_bayar":1}
+  transaksi.idx_mk_item_tanggal {"items.kode_menu":1,"tanggal":1}
+  transaksi.idx_pelanggan_tanggal {"pelanggan.id_pelanggan":1,"tanggal":-1}
+  pengguna._id_ {"_id":1}
+  pengguna.uq_pengguna_username {"username":1} unique
+
+################ 06_pengujian.js ################
+=== 06_pengujian.js — database: db_sistem_kasir ===
+
+[LULUS] T01 (positif) Volume data sesuai syarat (transaksi >= 1000, koleksi lain >= 30)
+         harapan: transaksi>=1000, lainnya>=30 | aktual: {"transaksi":5000,"pengguna":40,"pelanggan":300,"menu":46}
+[LULUS] T02 (positif) Keempat koleksi punya validator strict/error
+         harapan: 4 koleksi | aktual: 4 koleksi
+[LULUS] T03 (positif) Data asli MySQL termigrasi utuh (7 nota, 9 baris item, total Rp175.000)
+         harapan: nota=7, baris_item=9, total=175000 | aktual: nota=7, baris_item=9, total=175000
+[LULUS] T04 (positif) Konsistensi: setiap subtotal = harga x kuantitas
+         harapan: 0 item salah | aktual: 0 item salah
+[LULUS] T05 (positif) Konsistensi: total_bayar = jumlah subtotal & kembalian = dibayar - total
+         harapan: 0 nota salah | aktual: 0 nota salah
+[LULUS] T06 (positif) Integritas referensi: kasir & koki di transaksi ada di pengguna dengan role yang benar
+         harapan: 0 rujukan rusak | aktual: 0 rujukan rusak
+[LULUS] T07 (positif) Integritas referensi: setiap pelanggan di transaksi ada di koleksi pelanggan
+         harapan: 0 yatim | aktual: 0 yatim
+[LULUS] T08 (positif) Snapshot harga: nota sebelum 1 Okt memakai harga lama Nasi Goreng (20.000)
+         harapan: harga di nota lama=[20000], harga menu kini=22000 | aktual: nota lama=[20000], menu kini=22000
+[LULUS] T09 (positif) Query Q1 memakai indeks ESR (IXSCAN, tanpa tahap SORT di memori)
+         harapan: IXSCAN idx_esr..., tanpa SORT, docsExamined = nReturned | aktual: docsExamined=39, nReturned=39, SORT=false
+[LULUS] T10 (positif) Aggregation P1 (menu terlaris per kategori) menghasilkan 7 kategori terurut omzet
+         harapan: 7 kategori, menurun | aktual: 7 kategori, terurut=true
+[LULUS] N01 (negatif) Nota tanpa item (items kosong) ditolak
+         harapan: ditolak (code 121) | aktual: ditolak (code 121)
+[LULUS] N02 (negatif) Metode pembayaran tidak terdaftar ('OVO') ditolak
+         harapan: ditolak (code 121) | aktual: ditolak (code 121)
+[LULUS] N03 (negatif) Update yang membuat kembalian tidak sesuai ($set kembalian 9999) ditolak
+         harapan: ditolak (code 121) | aktual: ditolak (code 121)
+[LULUS] N04 (negatif) Username duplikat ('siti') ditolak indeks unik
+         harapan: ditolak (code 11000) | aktual: ditolak (code 11000)
+[LULUS] N05 (negatif) Status di luar alur ('Dibatalkan') & riwayat_status > 3 elemen ditolak
+         harapan: ditolak (code 121) | aktual: ditolak (code 121)
+
+=== RINGKASAN: 15/15 kasus LULUS (10 positif, 5 negatif) ===

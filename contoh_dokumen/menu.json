@@ -1,0 +1,32 @@
+{
+  "_id": "NSGRG",
+  "nama": "Nasi Goreng",
+  "kategori": {
+    "id": 1,
+    "nama": "Makanan Utama"
+  },
+  "harga": 22000,
+  "tersedia": true,
+  "tags": [
+    "goreng",
+    "favorit"
+  ],
+  "varian": [
+    {
+      "nama": "Level Pedas 1-5",
+      "harga_tambahan": 0
+    },
+    {
+      "nama": "Tambah Telur",
+      "harga_tambahan": 5000
+    }
+  ],
+  "riwayat_harga": [
+    {
+      "harga": 20000,
+      "berlaku_sampai": {
+        "$date": "2026-09-30T16:00:00Z"
+      }
+    }
+  ]
+}

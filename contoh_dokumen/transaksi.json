@@ -1,0 +1,65 @@
+{
+  "_id": "TR1909202600001",
+  "tanggal": {
+    "$date": "2026-09-19T02:15:00Z"
+  },
+  "tipe_pesanan": "Makan di Tempat",
+  "status": "Sudah Diterima",
+  "items": [
+    {
+      "kode_menu": "ETHMNS",
+      "nama_menu": "Es Teh Manis",
+      "kategori": "Minuman",
+      "harga": 5000,
+      "kuantitas": 1,
+      "subtotal": 5000
+    },
+    {
+      "kode_menu": "NSAMBKR",
+      "nama_menu": "Nasi Ayam Bakar",
+      "kategori": "Makanan Utama",
+      "harga": 25000,
+      "kuantitas": 1,
+      "subtotal": 25000
+    }
+  ],
+  "total_bayar": 30000,
+  "pembayaran": {
+    "metode": "Tunai",
+    "jenis": "Tunai",
+    "jumlah_dibayar": 30500,
+    "kembalian": 500
+  },
+  "kasir": {
+    "id_pengguna": 6,
+    "nama": "Putu Pratama"
+  },
+  "koki": {
+    "id_pengguna": 1,
+    "nama": "Chef Sanji"
+  },
+  "pelanggan": {
+    "id_pelanggan": 1,
+    "nama": "Andi"
+  },
+  "riwayat_status": [
+    {
+      "status": "Sedang Diproses",
+      "waktu": {
+        "$date": "2026-09-19T02:15:00Z"
+      }
+    },
+    {
+      "status": "Siap Diambil",
+      "waktu": {
+        "$date": "2026-09-19T02:37:00Z"
+      }
+    },
+    {
+      "status": "Sudah Diterima",
+      "waktu": {
+        "$date": "2026-09-19T02:40:00Z"
+      }
+    }
+  ]
+}

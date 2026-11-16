@@ -1,0 +1,15 @@
+{
+  "_id": 7,
+  "username": "siti",
+  "password_hash": "f02b7c1e519e4fa436147f7e1399974f9510aa9c8e0cb8be29151eb540f9d214",
+  "role": "Kasir",
+  "profil": {
+    "kode_staf": "KSR02",
+    "nama_lengkap": "Siti Aminah",
+    "shift": "Pagi"
+  },
+  "aktif": true,
+  "dibuat_pada": {
+    "$date": "2026-06-01T01:00:00Z"
+  }
+}
