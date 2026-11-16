@@ -1,4 +1,4 @@
-# Log Kontribusi — Projek NoSQL Kelompok 4
+# Log Kontribusi - Projek NoSQL Kelompok 4
 
 Isi setiap kali ada pekerjaan. Cocokkan dengan riwayat Git (`git log --author`) agar konsisten (IK2a).
 
@@ -15,5 +15,5 @@ Isi setiap kali ada pekerjaan. Cocokkan dengan riwayat Git (`git log --author`) 
 
 | Tanggal | Anggota | Pekerjaan | Berkas / commit | Durasi |
 |---|---|---|---|---|
-| 2026-11-16 | `<nama>` | Membuat klaster M0, database user, Network Access | — | |
+| 2026-11-16 | `<nama>` | Membuat klaster M0, database user, Network Access | - | |
 | | | | | |

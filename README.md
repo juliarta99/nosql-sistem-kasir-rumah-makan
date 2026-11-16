@@ -1,4 +1,4 @@
-# Projek NoSQL Kelompok 4 — Sistem Kasir Rumah Makan (MongoDB Atlas)
+# Projek NoSQL Kelompok 4 - Sistem Kasir Rumah Makan (MongoDB Atlas)
 
 Mata kuliah **Basis Data Lanjut** (24SIFH16X034) · Informatika FMIPA Universitas Udayana · Jalur 1 (lanjutan FP 1.1 & 1.2)
 
@@ -68,7 +68,7 @@ Windows PowerShell: `$env:URI = "..."`, `$env:MONGO_USER = "..."`, lalu `powersh
 mongorestore --uri="mongodb+srv://<alamat-klaster-anda>/" --username="<nama_user>" --drop dump/
 ```
 
-Semua skrip **idempoten** (boleh diulang; 01 melewati `collMod` bila validator tidak berubah), memakai `db.getSiblingDB("db_sistem_kasir")` (bukan `use`), dan dibungkus IIFE. Seed mengosongkan koleksi dengan `deleteMany({})` — **bukan** `drop()` — sehingga validator tetap ada.
+Semua skrip **idempoten** (boleh diulang; 01 melewati `collMod` bila validator tidak berubah), memakai `db.getSiblingDB("db_sistem_kasir")` (bukan `use`), dan dibungkus IIFE. Seed mengosongkan koleksi dengan `deleteMany({})` - **bukan** `drop()` - sehingga validator tetap ada.
 
 ## Cara membaca kode (untuk pemula)
 
@@ -89,9 +89,9 @@ Catatan: semua skrip dibungkus `(function () { ... })();` (IIFE) agar nama varia
 
 | Koleksi | Dokumen | Isi | Embedding | Referencing |
 |---|---|---|---|---|
-| `pengguna` | 40 | akun Admin/Kasir/Koki | `profil` (eks tabel kasir/koki, 1:1) | — |
+| `pengguna` | 40 | akun Admin/Kasir/Koki | `profil` (eks tabel kasir/koki, 1:1) | - |
 | `pelanggan` | 300 | data pelanggan, `kontak` bervariasi, `poin` | `kontak` | dirujuk dari transaksi |
-| `menu` | 45 | menu + `kategori`, `tags[]`, `varian[]`, `riwayat_harga[]` | `kategori` (1:N kecil) | — |
+| `menu` | 45 | menu + `kategori`, `tags[]`, `varian[]`, `riwayat_harga[]` | `kategori` (1:N kecil) | - |
 | `transaksi` | 5.000 | nota lengkap | `items[]` (eks detail_transaksi, N:M), `pembayaran` (eks metode_pembayaran), `riwayat_status[]` | `kasir`, `koki`, `pelanggan` → `{id, nama}` (extended reference) |
 
 Contoh dokumen ada di `contoh_dokumen/`. Alasan lengkap tiap keputusan: `PERUBAHAN_DAN_ALASAN.md`.
@@ -114,7 +114,7 @@ Contoh dokumen ada di `contoh_dokumen/`. Alasan lengkap tiap keputusan: `PERUBAH
 | Q1 nota ≥ Rp100rb kasir Siti, urut terbaru | `idx_esr_kasir_tanggal_total` (majemuk, ESR) | SORT ← COLLSCAN, docs 5.000 | FETCH ← IXSCAN, docs 39 (= nReturned), tanpa SORT |
 | Q2 nota berisi Gurame Goreng, Okt 2026 | `idx_mk_item_tanggal` (multikey) | COLLSCAN, docs 5.000 | IXSCAN, docs 95 (= nReturned) |
 | Q3 10 nota terakhir pelanggan Rina | `idx_pelanggan_tanggal` | SORT ← COLLSCAN, docs 5.000 | LIMIT ← FETCH ← IXSCAN, docs 10 |
-| — | `uq_pengguna_username` (unik) | — | menolak username ganda (uji N04) |
+| - | `uq_pengguna_username` (unik) | - | menolak username ganda (uji N04) |
 
 ## Daftar periksa petunjuk teknis
 

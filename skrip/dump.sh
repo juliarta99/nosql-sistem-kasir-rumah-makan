@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =====================================================================
-# dump.sh — membuat cadangan database ke folder dump/ dengan mongodump
+# dump.sh - membuat cadangan database ke folder dump/ dengan mongodump
 #
 # Cara pakai:
 #   export URI="mongodb+srv://kelompok4.ca4kphx.mongodb.net/db_sistem_kasir"

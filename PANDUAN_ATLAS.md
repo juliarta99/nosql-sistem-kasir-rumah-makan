@@ -1,10 +1,10 @@
-# Panduan MongoDB Atlas — dari Nol sampai Database Siap Dipakai Tim
+# Panduan MongoDB Atlas - dari Nol sampai Database Siap Dipakai Tim
 
-Projek NoSQL Kelompok 4 — **Sistem Kasir Rumah Makan** (`db_sistem_kasir`)
+Projek NoSQL Kelompok 4 - **Sistem Kasir Rumah Makan** (`db_sistem_kasir`)
 
 Langkah-langkahnya mengikuti alur persiapan Atlas di materi Pertemuan 11 (pasang mongosh → daftar akun → buat klaster → user & IP → hubungkan → isi data), lalu ditambah langkah khusus projek (validator, dump, undangan tim). Panduan ini diikuti **berurutan**. Langkah 1–9 dikerjakan **ketua** (pemilik klaster), langkah 10 dikerjakan **setiap anggota** setelah menerima undangan. Label menu Atlas kadang berubah sedikit; bila tombol tidak persis sama, cari padanan namanya.
 
-> Aturan keamanan dari petunjuk teknis: **kata sandi tidak boleh ditulis di skrip, laporan, atau repositori.** Semua contoh di bawah memakai `<...>` sebagai tempat isian — ganti seluruh teks dalam `< >` **termasuk tandanya**.
+> Aturan keamanan dari petunjuk teknis: **kata sandi tidak boleh ditulis di skrip, laporan, atau repositori.** Semua contoh di bawah memakai `<...>` sebagai tempat isian - ganti seluruh teks dalam `< >` **termasuk tandanya**.
 
 ---
 
@@ -12,7 +12,7 @@ Langkah-langkahnya mengikuti alur persiapan Atlas di materi Pertemuan 11 (pasang
 
 | No | Langkah | Siapa | Bukti untuk laporan |
 |----|---------|-------|---------------------|
-| 1 | Buat akun Atlas, organisasi, dan project | Ketua | — |
+| 1 | Buat akun Atlas, organisasi, dan project | Ketua | - |
 | 2 | Buat klaster gratis (M0) | Ketua | Tangkapan layar klaster aktif |
 | 3 | Buat database user | Ketua | Tangkapan layar Database Access (tanpa sandi) |
 | 4 | Atur Network Access (IP) | Ketua | Tangkapan layar Network Access |
@@ -22,7 +22,7 @@ Langkah-langkahnya mengikuti alur persiapan Atlas di materi Pertemuan 11 (pasang
 | 8 | Periksa di Data Explorer | Semua | Tangkapan layar validator & indeks |
 | 9 | `mongodump` ke folder `dump/` | Penguji | Isi folder `dump/` |
 | 10 | Undang anggota tim ke project | Ketua → anggota | Tangkapan layar Project Access Manager |
-| 11 | (Bila diminta) akses read-only untuk dosen | Ketua | — |
+| 11 | (Bila diminta) akses read-only untuk dosen | Ketua | - |
 
 ---
 
@@ -32,7 +32,7 @@ Langkah-langkahnya mengikuti alur persiapan Atlas di materi Pertemuan 11 (pasang
    > Ada **dua jenis akun**: akun Atlas (untuk masuk ke situs) dan *database user* (untuk membuka data). Keduanya berbeda.
 2. Atlas otomatis membuat satu **Organization** dan satu **Project**. Ubah nama agar rapi:
    - Organization: `BDL-Kelompok4` (Organization Settings → nama).
-   - Project: `ProjekNoSQL-Kelompok4` (menu **Projects** → **New Project** bila ingin project baru). Pada layar *Add Members* boleh dilewati dulu — undangan dilakukan di langkah 10.
+   - Project: `ProjekNoSQL-Kelompok4` (menu **Projects** → **New Project** bila ingin project baru). Pada layar *Add Members* boleh dilewati dulu - undangan dilakukan di langkah 10.
 
 ## 2. Membuat klaster gratis (M0)
 
@@ -41,7 +41,7 @@ Langkah-langkahnya mengikuti alur persiapan Atlas di materi Pertemuan 11 (pasang
 3. Isian:
    - **Name**: `Kelompok4` (huruf, angka, tanda hubung; **nama tidak dapat diubah** setelah dibuat)
    - **Provider**: AWS
-   - **Region**: `Singapore (ap-southeast-1)` — terdekat dari Bali (latensi rendah). Bila tidak tersedia, pilih region Asia lain.
+   - **Region**: `Singapore (ap-southeast-1)` - terdekat dari Bali (latensi rendah). Bila tidak tersedia, pilih region Asia lain.
    - Centang **Preload sample dataset**: *tidak perlu* (biarkan kosong agar klaster bersih).
 4. Klik **Create**. Klaster siap dalam waktu singkat, lalu wizard **Security Quickstart** muncul.
 5. Wizard Security Quickstart boleh langsung dipakai untuk langkah 3 (database user) dan langkah 4 (IP). Isinya sama; tetap ikuti ketentuan role di bawah.
@@ -62,7 +62,7 @@ Database user = akun untuk **terhubung ke database** (berbeda dengan akun login 
 ## 4. Network Access (Security → Network Access)
 
 1. **Add IP Address → Add Current IP Address** → Confirm. Statusnya harus **Active**.
-2. Setiap anggota menambahkan IP-nya sendiri (setelah diundang, langkah 10) — IP rumah, kos, dan Wi-Fi kampus berbeda-beda.
+2. Setiap anggota menambahkan IP-nya sendiri (setelah diundang, langkah 10) - IP rumah, kos, dan Wi-Fi kampus berbeda-beda.
 3. Bila pindah jaringan dan koneksi *timeout*, tambahkan lagi IP baru.
 4. **Hindari `0.0.0.0/0`**. Hanya boleh sementara saat penilaian dosen, lalu dihapus (sesuai petunjuk teknis).
 
@@ -185,7 +185,7 @@ Setelah dicek, hapus `db_restore` dari Data Explorer.
 1. **Database Access → Add New Database User**: username `dosen_bdl_k4`, role **Only read any database** (atau *Specific Privileges* `read` @ `db_sistem_kasir`).
 2. Kirim alamat klaster + username + password **lewat kanal privat** (DM / email), bukan di laporan.
 3. Bila dosen terhubung dari jaringan yang tidak diketahui: tambahkan `0.0.0.0/0` **sementara**, beri komentar "sementara-penilaian", dan **hapus** setelah nilai keluar.
-4. Klaster harus tetap aktif sampai penilaian selesai (M0 tidak dihapus otomatis, tetapi bisa dijeda bila lama tidak dipakai — buka Atlas sesekali).
+4. Klaster harus tetap aktif sampai penilaian selesai (M0 tidak dihapus otomatis, tetapi bisa dijeda bila lama tidak dipakai - buka Atlas sesekali).
 
 ---
 

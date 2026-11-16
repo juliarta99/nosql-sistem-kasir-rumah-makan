@@ -1,6 +1,6 @@
 /* =====================================================================
- * 02_seed.js — Mengisi database dengan data
- * Projek NoSQL Kelompok 4 — Sistem Kasir Rumah Makan (db_sistem_kasir)
+ * 02_seed.js - Mengisi database dengan data
+ * Projek NoSQL Kelompok 4 - Sistem Kasir Rumah Makan (db_sistem_kasir)
  *
  * Cara menjalankan (SETELAH 01_schema.js):
  *   mongosh "$URI" --username <user> --file skrip/02_seed.js
@@ -22,7 +22,7 @@
  *                     data buatan IDENTIK di laptop siapa pun dan di Atlas.
  *   - WITA          : Waktu Indonesia Tengah (UTC+8), zona waktu Bali.
  *
- * Skrip dibungkus (function () { ... })(); — disebut IIFE — supaya
+ * Skrip dibungkus (function () { ... })(); - disebut IIFE - supaya
  * nama-nama variabel di sini tidak bentrok dengan skrip lain bila
  * beberapa skrip dijalankan dalam satu sesi mongosh.
  * ===================================================================== */
@@ -130,7 +130,7 @@
   // Mulai 1 Oktober 2026 beberapa menu naik harga. Nota sebelum tanggal ini memakai harga lama.
   const TANGGAL_HARGA_BARU = waktuWita(2026, 10, 1, 0, 0);
 
-  print("=== 02_seed.js — database: " + NAMA_DATABASE + " (benih " + BENIH + ") ===");
+  print("=== 02_seed.js - database: " + NAMA_DATABASE + " (benih " + BENIH + ") ===");
 
   /* ===================================================================
    * BAGIAN 3. KOLEKSI pengguna
@@ -488,7 +488,7 @@
   // 6b. 4.993 transaksi BUATAN, 1 Agustus – 15 November 2026.
   const TARGET_JUMLAH_TRANSAKSI = 5000;
 
-  // Langkah 1 — daftar semua hari. Akhir pekan lebih ramai (bobot lebih besar).
+  // Langkah 1 - daftar semua hari. Akhir pekan lebih ramai (bobot lebih besar).
   const daftarHari = [];
   const tanggalAwal = new Date(Date.UTC(2026, 7, 1));    // 1 Agustus 2026 (bulan 7 = Agustus, karena dihitung dari 0)
   const tanggalAkhir = new Date(Date.UTC(2026, 10, 15)); // 15 November 2026
@@ -500,7 +500,7 @@
     daftarHari.push({ tahun: hari.getUTCFullYear(), bulan: hari.getUTCMonth() + 1, tanggal: hari.getUTCDate(), bobot: bobotKeramaian });
   }
 
-  // Langkah 2 — bagi 4.993 nota ke hari-hari tersebut sesuai bobot keramaian.
+  // Langkah 2 - bagi 4.993 nota ke hari-hari tersebut sesuai bobot keramaian.
   const nomorHari = [];
   const bobotHari = [];
   const jumlahNotaPerHari = [];
@@ -536,7 +536,7 @@
 
   const KODE_HARI_TERAKHIR = "15112026";
 
-  // Langkah 3 — buat nota untuk setiap hari.
+  // Langkah 3 - buat nota untuk setiap hari.
   for (let i = 0; i < daftarHari.length; i++) {
     const h = daftarHari[i];
     const kodeTanggal = tambahNol(h.tanggal, 2) + tambahNol(h.bulan, 2) + h.tahun; // contoh "01082026"

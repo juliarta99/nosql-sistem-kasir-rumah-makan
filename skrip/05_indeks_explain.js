@@ -1,6 +1,6 @@
 /* =====================================================================
- * 05_indeks_explain.js — Membuat 4 indeks dan membuktikan efeknya
- * Projek NoSQL Kelompok 4 — db_sistem_kasir
+ * 05_indeks_explain.js - Membuat 4 indeks dan membuktikan efeknya
+ * Projek NoSQL Kelompok 4 - db_sistem_kasir
  *
  * Cara menjalankan:
  *   mongosh "$URI" --username <user> --file skrip/05_indeks_explain.js
@@ -14,14 +14,14 @@
  *   jadi indeks hanya dibuat untuk query yang memang sering dipakai.
  *
  * INDEKS YANG DIBUAT
- *   I1 idx_esr_kasir_tanggal_total  (transaksi) — MAJEMUK dengan aturan ESR   → query Q1
+ *   I1 idx_esr_kasir_tanggal_total  (transaksi) - MAJEMUK dengan aturan ESR   → query Q1
  *        ESR = urutan field: Equality (filter "sama dengan") → Sort (urutan)
  *        → Range (filter rentang). Dengan urutan ini MongoDB tidak perlu
  *        mengurutkan ulang di memori (tahap SORT hilang).
- *   I2 uq_pengguna_username         (pengguna)  — UNIK: satu username satu akun
- *   I3 idx_mk_item_tanggal          (transaksi) — MULTIKEY: indeks pada field di
+ *   I2 uq_pengguna_username         (pengguna)  - UNIK: satu username satu akun
+ *   I3 idx_mk_item_tanggal          (transaksi) - MULTIKEY: indeks pada field di
  *        dalam array (items.kode_menu); MongoDB membuat satu entri per item  → query Q2
- *   I4 idx_pelanggan_tanggal        (transaksi) — riwayat transaksi pelanggan → query Q3
+ *   I4 idx_pelanggan_tanggal        (transaksi) - riwayat transaksi pelanggan → query Q3
  *
  * CARA MEMBUKTIKAN (explain "executionStats")
  *   1. Hapus indeks I1/I3/I4 bila sudah ada (kondisi "sebelum").
@@ -129,10 +129,10 @@
     };
   }
 
-  print("=== 05_indeks_explain.js — database: " + NAMA_DATABASE + " ===");
+  print("=== 05_indeks_explain.js - database: " + NAMA_DATABASE + " ===");
   print("jumlah dokumen transaksi: " + kasirDb.transaksi.countDocuments({}));
 
-  // LANGKAH 1 — kondisi awal: hapus indeks buatan kita bila sudah ada (indeks _id tidak disentuh)
+  // LANGKAH 1 - kondisi awal: hapus indeks buatan kita bila sudah ada (indeks _id tidak disentuh)
   DAFTAR_INDEKS.forEach(function (indeks) {
     const koleksi = kasirDb.getCollection(indeks.koleksi);
     const sudahAda = koleksi.getIndexes().some(function (i) { return i.name === indeks.nama; });
@@ -142,11 +142,11 @@
     }
   });
 
-  // LANGKAH 2 — ukur SEBELUM indeks dibuat
+  // LANGKAH 2 - ukur SEBELUM indeks dibuat
   const hasilSebelum = {};
   DAFTAR_QUERY.forEach(function (q) { hasilSebelum[q.kode] = ukurQuery(q); });
 
-  // LANGKAH 3 — buat indeks
+  // LANGKAH 3 - buat indeks
   print("");
   DAFTAR_INDEKS.forEach(function (indeks) {
     const opsiLengkap = Object.assign({ name: indeks.nama }, indeks.opsi);
@@ -154,11 +154,11 @@
     print("[buat]  " + indeks.koleksi + "." + indeks.nama + " " + JSON.stringify(indeks.kunci) + (indeks.opsi.unique ? " UNIQUE" : ""));
   });
 
-  // LANGKAH 4 — ukur SESUDAH indeks dibuat
+  // LANGKAH 4 - ukur SESUDAH indeks dibuat
   const hasilSesudah = {};
   DAFTAR_QUERY.forEach(function (q) { hasilSesudah[q.kode] = ukurQuery(q); });
 
-  // LANGKAH 5 — tampilkan perbandingan
+  // LANGKAH 5 - tampilkan perbandingan
   print("\n=== Perbandingan explain (executionStats, waktu = nilai tengah dari 3 kali) ===");
   function barisLaporan(label, h) {
     return "  " + label + " : tahap=" + h.tahap + " | nReturned=" + h.nReturned + " | keysExamined=" + h.totalKeysExamined +
@@ -167,7 +167,7 @@
   DAFTAR_QUERY.forEach(function (q) {
     const sebelum = hasilSebelum[q.kode];
     const sesudah = hasilSesudah[q.kode];
-    print("\n" + q.kode + " — " + q.keterangan);
+    print("\n" + q.kode + " - " + q.keterangan);
     print(barisLaporan("SEBELUM", sebelum));
     print(barisLaporan("SESUDAH", sesudah));
 

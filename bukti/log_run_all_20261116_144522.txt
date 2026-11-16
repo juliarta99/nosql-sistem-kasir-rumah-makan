@@ -1,6 +1,6 @@
 
 ################ 01_schema.js ################
-=== 01_schema.js — database: db_sistem_kasir ===
+=== 01_schema.js - database: db_sistem_kasir ===
 [TETAP]    validator koleksi pengguna sudah sesuai (data tetap)
 [TETAP]    validator koleksi pelanggan sudah sesuai (data tetap)
 [TETAP]    validator koleksi menu sudah sesuai (data tetap)
@@ -24,7 +24,7 @@
 Hasil: 5/5 dokumen tidak valid berhasil ditolak.
 
 ################ 02_seed.js ################
-=== 02_seed.js — database: db_sistem_kasir (benih 4042026) ===
+=== 02_seed.js - database: db_sistem_kasir (benih 4042026) ===
 [pengguna] dihapus 0 -> disisipkan 40 -> countDocuments = 40
 [pelanggan] dihapus 0 -> disisipkan 300 -> countDocuments = 300
 [menu] dihapus 0 -> disisipkan 45 -> countDocuments = 45
@@ -95,15 +95,15 @@ Contoh nota asli MySQL yang sudah dipindahkan:
 }
 
 ################ 03_crud.js ################
-=== 03_crud.js — database: db_sistem_kasir ===
+=== 03_crud.js - database: db_sistem_kasir ===
 
---- C1 | insertOne — mendaftarkan pelanggan baru (atribut kontak bervariasi) ---
+--- C1 | insertOne - mendaftarkan pelanggan baru (atribut kontak bervariasi) ---
 {
   acknowledged: true,
   insertedId: 9001
 }
 
---- C2 | insertMany — kasir mencatat 2 nota sekaligus (item & pembayaran di-embed) ---
+--- C2 | insertMany - kasir mencatat 2 nota sekaligus (item & pembayaran di-embed) ---
 {
   acknowledged: true,
   insertedIds: {
@@ -112,7 +112,7 @@ Contoh nota asli MySQL yang sudah dipindahkan:
   }
 }
 
---- C3 | upsert — menambah/menyunting menu musiman 'Es Campur' (dibuat bila belum ada) ---
+--- C3 | upsert - menambah/menyunting menu musiman 'Es Campur' (dibuat bila belum ada) ---
 {
   acknowledged: true,
   insertedId: 'ESCMPR',
@@ -121,7 +121,7 @@ Contoh nota asli MySQL yang sudah dipindahkan:
   upsertedCount: 1
 }
 
---- R1 | Perbandingan ($gte, $lt) — nota bernilai >= Rp150.000 selama Oktober 2026 ---
+--- R1 | Perbandingan ($gte, $lt) - nota bernilai >= Rp150.000 selama Oktober 2026 ---
 jumlah nota: 70
 {
   _id: 'TR0210202600001',
@@ -145,7 +145,7 @@ jumlah nota: 70
   }
 }
 
---- R2 | Logika ($and + $or) — antrean dapur: belum diterima DAN (bawa pulang ATAU belum ada koki) ---
+--- R2 | Logika ($and + $or) - antrean dapur: belum diterima DAN (bawa pulang ATAU belum ada koki) ---
 {
   _id: 'TR2009202600002',
   tanggal: ISODate('2026-09-20T05:10:00.000Z'),
@@ -192,7 +192,7 @@ jumlah nota: 70
   status: 'Sedang Diproses'
 }
 
---- R3 | Array ($elemMatch) — nota yang memesan Nasi Ayam Bakar minimal 3 porsi dalam satu baris item ---
+--- R3 | Array ($elemMatch) - nota yang memesan Nasi Ayam Bakar minimal 3 porsi dalam satu baris item ---
 jumlah nota: 42
 {
   _id: 'TR0408202600025',
@@ -223,7 +223,7 @@ jumlah nota: 42
   ]
 }
 
---- R4 | $regex — cari menu yang namanya mengandung 'goreng' (tidak peka huruf besar/kecil) ---
+--- R4 | $regex - cari menu yang namanya mengandung 'goreng' (tidak peka huruf besar/kecil) ---
 {
   _id: 'PSGGRG',
   nama: 'Pisang Goreng',
@@ -273,7 +273,7 @@ jumlah nota: 42
   harga: 30000
 }
 
---- R5 | Notasi titik — transaksi tunai yang dilayani kasir Siti Aminah (field bersarang) ---
+--- R5 | Notasi titik - transaksi tunai yang dilayani kasir Siti Aminah (field bersarang) ---
 jumlah nota: 102
 {
   _id: 'TR0108202600016',
@@ -289,7 +289,7 @@ jumlah nota: 102
   }
 }
 
---- R6 | Proyeksi + sort + limit — 5 nota terbesar sepanjang data (tanpa _id, hanya field penting) ---
+--- R6 | Proyeksi + sort + limit - 5 nota terbesar sepanjang data (tanpa _id, hanya field penting) ---
 {
   tanggal: ISODate('2026-09-05T05:20:00.000Z'),
   total_bayar: 534000,
@@ -346,7 +346,7 @@ jumlah nota: 102
   no_nota: 'TR1708202600021'
 }
 
---- U1 | $set — menu Es Campur habis hari ini, harga juga disesuaikan ---
+--- U1 | $set - menu Es Campur habis hari ini, harga juga disesuaikan ---
 {
   acknowledged: true,
   insertedId: null,
@@ -355,7 +355,7 @@ jumlah nota: 102
   upsertedCount: 0
 }
 
---- U2 | $inc — tambah poin loyalitas pelanggan uji (1 poin per Rp10.000 nota TR1611202699001) ---
+--- U2 | $inc - tambah poin loyalitas pelanggan uji (1 poin per Rp10.000 nota TR1611202699001) ---
 {
   acknowledged: true,
   insertedId: null,
@@ -369,7 +369,7 @@ jumlah nota: 102
   poin: 6
 }
 
---- U3 | Operator array ($push) — koki Sanji menyelesaikan pesanan: status & riwayat_status diperbarui ---
+--- U3 | Operator array ($push) - koki Sanji menyelesaikan pesanan: status & riwayat_status diperbarui ---
 {
   acknowledged: true,
   insertedId: null,
@@ -396,7 +396,7 @@ jumlah nota: 102
   ]
 }
 
---- U4 | updateMany ($addToSet) — beri tag 'segar' pada semua menu kategori Minuman yang dingin ---
+--- U4 | updateMany ($addToSet) - beri tag 'segar' pada semua menu kategori Minuman yang dingin ---
 {
   acknowledged: true,
   insertedId: null,
@@ -405,7 +405,7 @@ jumlah nota: 102
   upsertedCount: 0
 }
 
---- D1 | deleteMany — membatalkan (void) 2 nota uji yang salah input ---
+--- D1 | deleteMany - membatalkan (void) 2 nota uji yang salah input ---
 dokumen yang cocok sebelum dihapus: 2
 {
   acknowledged: true,
@@ -413,7 +413,7 @@ dokumen yang cocok sebelum dihapus: 2
 }
 deletedCount sesuai perkiraan: true
 
---- D2 | deleteOne — menghapus pelanggan uji yang sudah tidak punya transaksi ---
+--- D2 | deleteOne - menghapus pelanggan uji yang sudah tidak punya transaksi ---
 {
   acknowledged: true,
   deletedCount: 1
@@ -422,7 +422,7 @@ deletedCount sesuai perkiraan: true
 Selesai: 15 operasi CRUD dijalankan. Jumlah akhir -> transaksi=5000, pelanggan=300, menu=46
 
 ################ 04_aggregation.js ################
-=== 04_aggregation.js — database: db_sistem_kasir ===
+=== 04_aggregation.js - database: db_sistem_kasir ===
 
 === P1 | Menu terlaris per kategori, Oktober 2026 ===
 tahap: $match -> $unwind -> $group -> $sort -> $group -> $project -> $sort
@@ -511,7 +511,7 @@ tahap: $match -> $lookup -> $unwind -> $project -> $sort -> $limit
 (8 baris)
 
 ################ 05_indeks_explain.js ################
-=== 05_indeks_explain.js — database: db_sistem_kasir ===
+=== 05_indeks_explain.js - database: db_sistem_kasir ===
 jumlah dokumen transaksi: 5000
 
 [buat]  transaksi.idx_esr_kasir_tanggal_total {"kasir.id_pengguna":1,"tanggal":-1,"total_bayar":1}
@@ -521,17 +521,17 @@ jumlah dokumen transaksi: 5000
 
 === Perbandingan explain (executionStats, waktu = nilai tengah dari 3 kali) ===
 
-Q1 — Nota >= Rp100.000 milik kasir Siti (id 7), terbaru dulu  [E: kasir, S: tanggal, R: total]
+Q1 - Nota >= Rp100.000 milik kasir Siti (id 7), terbaru dulu  [E: kasir, S: tanggal, R: total]
   SEBELUM : tahap=SORT <- COLLSCAN | nReturned=39 | keysExamined=0 | docsExamined=5000 | waktu=[4,4,5] median=4 ms
   SESUDAH : tahap=FETCH <- IXSCAN(idx_esr_kasir_tanggal_total) | nReturned=39 | keysExamined=280 | docsExamined=39 | waktu=[1,0,0] median=0 ms
   => dokumen yang diperiksa turun 5000 -> 39 (128.2x lebih sedikit); rasio docsExamined/nReturned sesudah = 1.00
 
-Q2 — Nota berisi Gurame Goreng (GRMGRG) selama Oktober 2026  [multikey items.kode_menu]
+Q2 - Nota berisi Gurame Goreng (GRMGRG) selama Oktober 2026  [multikey items.kode_menu]
   SEBELUM : tahap=COLLSCAN | nReturned=95 | keysExamined=0 | docsExamined=5000 | waktu=[6,8,6] median=6 ms
   SESUDAH : tahap=FETCH <- IXSCAN(idx_mk_item_tanggal) | nReturned=95 | keysExamined=95 | docsExamined=95 | waktu=[1,0,0] median=0 ms
   => dokumen yang diperiksa turun 5000 -> 95 (52.6x lebih sedikit); rasio docsExamined/nReturned sesudah = 1.00
 
-Q3 — 10 transaksi terakhir pelanggan Rina (id 3)
+Q3 - 10 transaksi terakhir pelanggan Rina (id 3)
   SEBELUM : tahap=SORT <- COLLSCAN | nReturned=10 | keysExamined=0 | docsExamined=5000 | waktu=[12,5,7] median=7 ms
   SESUDAH : tahap=LIMIT <- FETCH <- IXSCAN(idx_pelanggan_tanggal) | nReturned=10 | keysExamined=10 | docsExamined=10 | waktu=[1,0,0] median=0 ms
   => dokumen yang diperiksa turun 5000 -> 10 (500.0x lebih sedikit); rasio docsExamined/nReturned sesudah = 1.00
@@ -548,7 +548,7 @@ Daftar indeks akhir:
   pengguna.uq_pengguna_username {"username":1} unique
 
 ################ 06_pengujian.js ################
-=== 06_pengujian.js — database: db_sistem_kasir ===
+=== 06_pengujian.js - database: db_sistem_kasir ===
 
 [LULUS] T01 (positif) Volume data sesuai syarat (transaksi >= 1000, koleksi lain >= 30)
          harapan: transaksi>=1000, lainnya>=30 | aktual: {"transaksi":5000,"pengguna":40,"pelanggan":300,"menu":46}

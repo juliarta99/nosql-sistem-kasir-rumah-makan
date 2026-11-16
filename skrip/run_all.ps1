@@ -1,5 +1,5 @@
 # =====================================================================
-# run_all.ps1 — versi Windows PowerShell dari run_all.sh
+# run_all.ps1 - versi Windows PowerShell dari run_all.sh
 #
 # Cara pakai:
 #   $env:URI = "mongodb+srv://kelompok4.ca4kphx.mongodb.net/db_sistem_kasir"

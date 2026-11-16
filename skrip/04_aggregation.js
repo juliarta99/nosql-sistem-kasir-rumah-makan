@@ -1,6 +1,6 @@
 /* =====================================================================
- * 04_aggregation.js — Aggregation pipeline, dipelajari BERTAHAP
- * Projek NoSQL Kelompok 4 — db_sistem_kasir
+ * 04_aggregation.js - Aggregation pipeline, dipelajari BERTAHAP
+ * Projek NoSQL Kelompok 4 - db_sistem_kasir
  *
  * Cara menjalankan:
  *   mongosh "$URI" --username <user> --file skrip/04_aggregation.js
@@ -38,8 +38,8 @@
  *
  * KETENTUAN PETUNJUK TEKNIS (untuk P1–P6)
  *   - 6 pipeline, masing-masing ≥ 3 tahap, semuanya diawali $match
- *   - $lookup dipakai 3 kali (P4, P5, P6) — syarat minimal 2
- *   - $unwind dipakai di P3, P4, P5, dan P6 — syarat minimal 1
+ *   - $lookup dipakai 3 kali (P4, P5, P6) - syarat minimal 2
+ *   - $unwind dipakai di P3, P4, P5, dan P6 - syarat minimal 1
  *
  * Catatan penulisan:
  *   "$namaField"  = ambil nilai field itu, contoh "$total_bayar"
@@ -69,16 +69,16 @@
     return hasil;
   }
 
-  print("=== 04_aggregation.js — database: " + NAMA_DATABASE + " ===");
+  print("=== 04_aggregation.js - database: " + NAMA_DATABASE + " ===");
 
   /* ###################################################################
-   * BAGIAN A — LATIHAN BERTAHAP (1 tahap → 2 tahap → 3 tahap)
+   * BAGIAN A - LATIHAN BERTAHAP (1 tahap → 2 tahap → 3 tahap)
    * Latihan ini tidak termasuk 6 pipeline wajib; tujuannya agar alur
    * pipeline mudah dipahami sebelum masuk ke P1–P6.
    * ################################################################### */
-  print("\n################ BAGIAN A — LATIHAN BERTAHAP ################");
+  print("\n################ BAGIAN A - LATIHAN BERTAHAP ################");
 
-  // L1 — SATU tahap: $match saja (sama seperti find dengan filter)
+  // L1 - SATU tahap: $match saja (sama seperti find dengan filter)
   // SQL: SELECT * FROM transaksi WHERE pembayaran = 'Tunai' AND tanggal di bulan Oktober
   const hasilL1 = kasirDb.transaksi.aggregate([
     { $match: { "pembayaran.metode": "Tunai", tanggal: { $gte: AWAL_OKTOBER, $lt: AWAL_NOVEMBER } } }
@@ -87,7 +87,7 @@
   print("jumlah dokumen yang lolos $match: " + hasilL1.length);
   print("contoh nota pertama: " + hasilL1[0]._id + ", total_bayar " + hasilL1[0].total_bayar);
 
-  // L2 — DUA tahap: $match lalu $group
+  // L2 - DUA tahap: $match lalu $group
   // _id: null artinya SEMUA dokumen dijadikan satu kelompok.
   // SQL: SELECT COUNT(*), SUM(total_bayar) FROM transaksi WHERE ... (bulan Oktober)
   jalankanDanTampilkan("L2", "2 tahap ($match -> $group): total nota & omzet Oktober 2026", [
@@ -98,7 +98,7 @@
         omzet: { $sum: "$total_bayar" } } }    // jumlahkan field total_bayar (SUM)
   ], "transaksi");
 
-  // L3 — TIGA tahap: $match → $group → $sort
+  // L3 - TIGA tahap: $match → $group → $sort
   // Sekarang _id diisi "$tipe_pesanan", jadi dokumen dikelompokkan per tipe pesanan.
   // SQL: SELECT tipe_pesanan, COUNT(*), SUM(total_bayar) ... GROUP BY tipe_pesanan ORDER BY omzet DESC
   jalankanDanTampilkan("L3", "3 tahap ($match -> $group -> $sort): omzet Oktober per tipe pesanan", [
@@ -108,12 +108,12 @@
   ], "transaksi");
 
   /* ###################################################################
-   * BAGIAN B — 6 PIPELINE ANALITIK (dari sederhana ke lanjut)
+   * BAGIAN B - 6 PIPELINE ANALITIK (dari sederhana ke lanjut)
    * ################################################################### */
-  print("\n################ BAGIAN B — 6 PIPELINE ANALITIK ################");
+  print("\n################ BAGIAN B - 6 PIPELINE ANALITIK ################");
 
   /* ------------------------------------------------------------------
-   * P1 — Jam berapa paling ramai? Berapa yang makan di tempat vs bawa pulang?
+   * P1 - Jam berapa paling ramai? Berapa yang makan di tempat vs bawa pulang?
    * HAL BARU: $project untuk MEMBENTUK field baru (jam) sebelum dikelompokkan.
    * ------------------------------------------------------------------ */
   jalankanDanTampilkan("P1", "Jam sibuk & tipe pesanan", [
@@ -141,7 +141,7 @@
   ], "transaksi");
 
   /* ------------------------------------------------------------------
-   * P2 — Berapa omzet bulanan tiap jenis pembayaran, dan berapa persen tunai?
+   * P2 - Berapa omzet bulanan tiap jenis pembayaran, dan berapa persen tunai?
    * HAL BARU: kolom bersyarat dengan $cond di dalam $group (satu kolom per jenis),
    *           lalu $addFields untuk menghitung persentase.
    * ------------------------------------------------------------------ */
@@ -170,7 +170,7 @@
   ], "transaksi");
 
   /* ------------------------------------------------------------------
-   * P3 — 10 menu paling laris bulan Oktober 2026
+   * P3 - 10 menu paling laris bulan Oktober 2026
    * HAL BARU: $unwind (membuka array items) dan $limit.
    *   Satu nota berisi 3 item → setelah $unwind menjadi 3 dokumen,
    *   masing-masing dengan SATU item, sehingga item bisa dikelompokkan.
@@ -196,7 +196,7 @@
   ], "transaksi");
 
   /* ------------------------------------------------------------------
-   * P4 — Bagaimana kinerja tiap kasir?
+   * P4 - Bagaimana kinerja tiap kasir?
    * HAL BARU: $lookup (gabung dengan koleksi pengguna).
    *   Nota hanya menyimpan id & nama kasir; username, shift, dan status
    *   aktif diambil dari koleksi pengguna.
@@ -225,8 +225,8 @@
   ], "transaksi");
 
   /* ------------------------------------------------------------------
-   * P5 — Siapa 10 pelanggan dengan belanja terbesar?
-   * HAL BARU: urutan tahap untuk efisiensi — $sort & $limit DULU,
+   * P5 - Siapa 10 pelanggan dengan belanja terbesar?
+   * HAL BARU: urutan tahap untuk efisiensi - $sort & $limit DULU,
    *           baru $lookup, sehingga hanya 10 dokumen yang digabung.
    * ------------------------------------------------------------------ */
   jalankanDanTampilkan("P5", "10 pelanggan dengan belanja terbesar", [
@@ -256,12 +256,12 @@
   ], "transaksi");
 
   /* ------------------------------------------------------------------
-   * P6 — Menu mana yang paling kurang laku dalam 30 hari terakhir?
+   * P6 - Menu mana yang paling kurang laku dalam 30 hari terakhir?
    * HAL BARU (paling lanjut): $lookup BERPIPELINE.
    *   Dimulai dari koleksi menu. Untuk SETIAP menu, MongoDB menjalankan
    *   pipeline kecil di koleksi transaksi untuk menghitung penjualannya.
    *   Kelebihannya: menu yang TIDAK terjual sama sekali tetap ikut tampil
-   *   (nilainya 0) — hal ini tidak bisa didapat bila dimulai dari transaksi.
+   *   (nilainya 0) - hal ini tidak bisa didapat bila dimulai dari transaksi.
    * ------------------------------------------------------------------ */
   const AWAL_30_HARI = waktuWita(2026, 10, 17, 0, 0); // 17 Okt – 15 Nov 2026
   jalankanDanTampilkan("P6", "8 menu tersedia yang paling kurang laku 30 hari terakhir", [

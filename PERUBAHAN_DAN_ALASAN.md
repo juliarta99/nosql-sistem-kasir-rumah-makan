@@ -1,6 +1,6 @@
 # Perubahan Model: MySQL (Relasional) → MongoDB (Dokumen)
 
-Projek NoSQL Kelompok 4 — **Sistem Kasir Rumah Makan** · Jalur 1 (lanjutan FP 1.1 & FP 1.2)
+Projek NoSQL Kelompok 4 - **Sistem Kasir Rumah Makan** · Jalur 1 (lanjutan FP 1.1 & FP 1.2)
 
 Dokumen ini menjelaskan **apa yang berubah** dari `db_sistem_kasir` versi MySQL (9 tabel, 3NF) menjadi versi MongoDB (4 koleksi), **mengapa** strukturnya seperti itu, dan **apa konsekuensinya**. Setiap keputusan dikaitkan dengan aturan pemodelan dari materi **Pertemuan 11 (Document Database dengan MongoDB)**, dan setiap angka berasal dari hasil eksekusi skrip pada 5.000 transaksi (lihat `bukti/`).
 
@@ -126,7 +126,7 @@ Alasan tambahan yang kuat:
 | Pola baca | Struk selalu mencetak metode, jumlah dibayar, kembalian | Embed ✔ |
 | Jumlah | Satu nota satu pembayaran | Embed ✔ |
 | Perubahan | 6 nilai metode statis | Embed ✔ |
-| Konsistensi | Validator `$expr` memeriksa total, dibayar, dan kembalian dalam **satu dokumen** — tidak mungkin bila dipisah | Embed ✔ |
+| Konsistensi | Validator `$expr` memeriksa total, dibayar, dan kembalian dalam **satu dokumen** - tidak mungkin bila dipisah | Embed ✔ |
 | Ukuran | ±80 byte | Embed ✔ |
 
 `jumlah_dibayar` dan `kembalian` secara makna memang atribut pembayaran, jadi digabung ke satu subdokumen. Ditambah `jenis` (Tunai/QRIS/Transfer) agar analitik porsi tunai (P2) langsung bisa dikelompokkan.
@@ -194,7 +194,7 @@ Ini padanan langsung contoh materi **"buku dan ulasan yang terus bertambah → r
 | `user.role` | `role` | enum `Admin / Kasir / Koki` |
 | `kasir.id_kasir`, `koki.id_koki` | `profil.kode_staf` | `KSR01..` / `KOK01..` (KSR01 = id_kasir 1, dapat ditelusuri) |
 | `kasir.nama_kasir`, `koki.nama_koki` | `profil.nama_lengkap` | |
-| — (baru) | `profil.no_hp`, `profil.shift`, `aktif`, `dibuat_pada` | Atribut opsional; `aktif` agar staf yang resign tidak dihapus dan histori nota tetap valid |
+| - (baru) | `profil.no_hp`, `profil.shift`, `aktif`, `dibuat_pada` | Atribut opsional; `aktif` agar staf yang resign tidak dihapus dan histori nota tetap valid |
 | `kasir.id_user` UNIQUE, `koki.id_user` UNIQUE | (hilang) | 1:1 dijamin secara struktural |
 
 ### 6.2 `menu` ← `menu`, `kategori`
@@ -205,7 +205,7 @@ Ini padanan langsung contoh materi **"buku dan ulasan yang terus bertambah → r
 | `menu.nama_menu` | `nama` | |
 | `menu.id_kategori` + `kategori.nama_kategori` | `kategori: { id, nama }` | Disematkan; nama dijaga enum validator |
 | `menu.harga` | `harga` | Angka rupiah bulat (lihat §8.3) |
-| — (baru) | `tersedia`, `tags[]`, `varian[]`, `riwayat_harga[]` | Atribut array/bervariasi |
+| - (baru) | `tersedia`, `tags[]`, `varian[]`, `riwayat_harga[]` | Atribut array/bervariasi |
 
 ### 6.3 `transaksi` ← `transaksi`, `detail_transaksi`, `metode_pembayaran`
 
@@ -221,20 +221,20 @@ Ini padanan langsung contoh materi **"buku dan ulasan yang terus bertambah → r
 | `id_kasir` | `kasir: { id_pengguna, nama }` | id_kasir n → id_pengguna n+5 (mis. 1 → 6) |
 | `id_koki` (NULL boleh) | `koki: { id_pengguna, nama }` atau `null` | id_koki n → id_pengguna n |
 | `id_pelanggan` | `pelanggan: { id_pelanggan, nama }` | |
-| — (baru) | `riwayat_status[]` (maks 3) | Waktu tiap perubahan status |
+| - (baru) | `riwayat_status[]` (maks 3) | Waktu tiap perubahan status |
 
 ### 6.4 `pelanggan` ← `pelanggan`
 
 | MySQL | MongoDB | Keterangan |
 |---|---|---|
 | `id_pelanggan`, `nama_pelanggan` | `_id`, `nama` | 7 data asli dipertahankan |
-| — (baru) | `kontak { no_hp?, email? }`, `poin`, `terdaftar_pada` | `kontak` bervariasi tanpa kolom NULL (bisa diperiksa dengan `$exists`) |
+| - (baru) | `kontak { no_hp?, email? }`, `poin`, `terdaftar_pada` | `kontak` bervariasi tanpa kolom NULL (bisa diperiksa dengan `$exists`) |
 
 ---
 
 ## 7. Perbandingan relasional vs dokumen pada 3 kebutuhan
 
-### K1 — Cetak struk satu nota (pola akses A2)
+### K1 - Cetak struk satu nota (pola akses A2)
 **MySQL** (6 tabel, 5 JOIN):
 ```sql
 SELECT t.no_nota, t.tanggal_transaksi, m.nama_menu, d.kuantitas, d.harga, d.subtotal,
@@ -253,12 +253,12 @@ db.transaksi.findOne({ _id: "TR1909202600001" })
 ```
 ➜ **Dokumen unggul**: hasil langsung berbentuk struk (header + array item).
 
-### K2 — Menu terlaris per kategori dalam satu bulan (pola akses A8)
+### K2 - Menu terlaris per kategori dalam satu bulan (pola akses A8)
 **MySQL**: `detail_transaksi JOIN transaksi JOIN menu JOIN kategori GROUP BY` + window function/subquery untuk peringkat 1 per kategori.
 **MongoDB** (P1): `$match → $unwind items → $group → $sort → $group($first) → $project → $sort`, tanpa `$lookup` karena `nama_menu` & `kategori` sudah ada di item.
 ➜ **Dokumen unggul** untuk laporan penjualan.
 
-### K3 — Mengganti nama kategori "Camilan" → "Kudapan"
+### K3 - Mengganti nama kategori "Camilan" → "Kudapan"
 **MySQL**: `UPDATE kategori SET nama_kategori='Kudapan' WHERE id_kategori=3;` → 1 baris, semua menu ikut.
 **MongoDB**: `db.menu.updateMany({ "kategori.id": 3 }, { $set: { "kategori.nama": "Kudapan" } })` → 6 dokumen menu, ditambah ubah enum validator. Item di nota lama tetap "Camilan" kecuali ikut di-update (ribuan dokumen), dan menurut materi `updateMany` **atomik per dokumen tetapi tidak atomik secara keseluruhan**.
 ➜ **Relasional unggul** untuk data master yang berubah dan harus seragam di semua tempat. Kami menerima trade-off ini karena nama kategori praktis tidak pernah berubah.
@@ -273,7 +273,7 @@ db.transaksi.findOne({ _id: "TR1909202600001" })
 ### 8.2 Waktu: `DATETIME` lokal → ISODate (UTC) + zona WITA saat analitik
 MySQL menyimpan `2026-09-19 10:15:00` tanpa zona. MongoDB menyimpan `ISODate("2026-09-19T02:15:00Z")`. Semua agregasi waktu memakai `timezone: "Asia/Makassar"` sehingga jam 10:15 tetap terbaca 10:15 WITA (P5).
 
-### 8.3 Uang: `DECIMAL(p,2)` → angka rupiah bulat — sekaligus memperbaiki bug skema MySQL
+### 8.3 Uang: `DECIMAL(p,2)` → angka rupiah bulat - sekaligus memperbaiki bug skema MySQL
 
 | Kolom MySQL | Tipe | Nilai maksimum | Masalah nyata |
 |---|---|---|---|

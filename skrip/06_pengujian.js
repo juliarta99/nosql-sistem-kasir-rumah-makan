@@ -1,6 +1,6 @@
 /* =====================================================================
- * 06_pengujian.js — 15 kasus uji otomatis (10 positif, 5 negatif)
- * Projek NoSQL Kelompok 4 — db_sistem_kasir
+ * 06_pengujian.js - 15 kasus uji otomatis (10 positif, 5 negatif)
+ * Projek NoSQL Kelompok 4 - db_sistem_kasir
  *
  * Cara menjalankan (SETELAH 01 sampai 05):
  *   mongosh "$URI" --username <user> --file skrip/06_pengujian.js
@@ -59,7 +59,7 @@
     return hasil.length ? hasil[0].n : 0;           // tanpa hasil → $count tidak mengembalikan apa-apa → 0
   }
 
-  print("=== 06_pengujian.js — database: " + NAMA_DATABASE + " ===\n");
+  print("=== 06_pengujian.js - database: " + NAMA_DATABASE + " ===\n");
 
   /* ============================ KASUS POSITIF ============================ */
 
@@ -248,7 +248,7 @@
   const jumlahPositif = rekapHasil.length - jumlahNegatif;
   print("\n=== RINGKASAN: " + jumlahLulus + "/" + rekapHasil.length + " kasus LULUS (" + jumlahPositif + " positif, " + jumlahNegatif + " negatif) ===");
   if (jumlahLulus !== rekapHasil.length) {
-    print("Ada kasus GAGAL — periksa keluaran di atas.");
+    print("Ada kasus GAGAL - periksa keluaran di atas.");
     if (typeof quit === "function") quit(1); // keluar dengan kode 1 agar run_all menandai ada kegagalan
   }
 })();

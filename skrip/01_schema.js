@@ -1,6 +1,6 @@
 /* =====================================================================
- * 01_schema.js — Membuat 4 koleksi beserta aturan validasinya
- * Projek NoSQL Kelompok 4 — Sistem Kasir Rumah Makan (db_sistem_kasir)
+ * 01_schema.js - Membuat 4 koleksi beserta aturan validasinya
+ * Projek NoSQL Kelompok 4 - Sistem Kasir Rumah Makan (db_sistem_kasir)
  *
  * Cara menjalankan:
  *   mongosh "$URI" --username <user> --file skrip/01_schema.js
@@ -183,7 +183,7 @@
 
   const validatorTransaksi = {
     $and: [
-      // Bagian 1 — aturan bentuk dokumen
+      // Bagian 1 - aturan bentuk dokumen
       {
         $jsonSchema: {
           bsonType: "object",
@@ -250,11 +250,11 @@
           }
         }
       },
-      // Bagian 2 — total_bayar harus sama dengan jumlah semua subtotal item
+      // Bagian 2 - total_bayar harus sama dengan jumlah semua subtotal item
       { $expr: { $eq: ["$total_bayar", { $sum: "$items.subtotal" }] } },
-      // Bagian 3 — uang yang dibayar tidak boleh kurang dari total
+      // Bagian 3 - uang yang dibayar tidak boleh kurang dari total
       { $expr: { $gte: ["$pembayaran.jumlah_dibayar", "$total_bayar"] } },
-      // Bagian 4 — kembalian = uang dibayar − total
+      // Bagian 4 - kembalian = uang dibayar − total
       { $expr: { $eq: ["$pembayaran.kembalian", { $subtract: ["$pembayaran.jumlah_dibayar", "$total_bayar"] }] } }
     ]
   };
@@ -283,7 +283,7 @@
     return null; // koleksi tidak ditemukan
   }
 
-  print("=== 01_schema.js — database: " + NAMA_DATABASE + " ===");
+  print("=== 01_schema.js - database: " + NAMA_DATABASE + " ===");
   const koleksiYangSudahAda = kasirDb.getCollectionNames();
 
   daftarKoleksi.forEach(function (k) {

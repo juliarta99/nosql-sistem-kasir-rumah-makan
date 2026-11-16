@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =====================================================================
-# run_all.sh — menjalankan skrip 01 sampai 06 berurutan + menyimpan log
+# run_all.sh - menjalankan skrip 01 sampai 06 berurutan + menyimpan log
 #
 # Cara pakai (macOS / Linux / Git Bash di Windows):
 #   export URI="mongodb+srv://kelompok4.ca4kphx.mongodb.net/db_sistem_kasir"
